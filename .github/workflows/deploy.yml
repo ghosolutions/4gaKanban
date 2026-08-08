@@ -6,6 +6,7 @@ on:
 
 jobs:
   prepare:
+    if: github.repository == 'RARgames/4gaBoards'
     runs-on: ubuntu-latest
     permissions:
       contents: write
