@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ghostsegsolutions.com.br/schemas/fdt/0.1/fdt.schema.json",
+  "title": "FDT — JSON Schema Canônico v0.1",
+  "description": "Contrato canônico de validação para o Framework de Descoberta Tecnológica (FDT).",
+  "type": "object",
+  "required": ["schema_version", "project"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "project": {"$ref": "#/$defs/FDTProject"},
+    "requirements": {"type": "array", "items": {"$ref": "#/$defs/Requirement"}},
+    "discovery_runs": {"type": "array", "items": {"$ref": "#/$defs/DiscoveryRun"}},
+    "search_queries": {"type": "array", "items": {"$ref": "#/$defs/SearchQuery"}},
+    "search_results": {"type": "array", "items": {"$ref": "#/$defs/SearchResult"}},
+    "candidates": {"type": "array", "items": {"$ref": "#/$defs/Candidate"}},
+    "solutions": {"type": "array", "items": {"$ref": "#/$defs/Solution"}},
+    "repositories": {"type": "array", "items": {"$ref": "#/$defs/Repository"}},
+    "metric_snapshots": {"type": "array", "items": {"$ref": "#/$defs/MetricSnapshot"}},
+    "licenses": {"type": "array", "items": {"$ref": "#/$defs/LicenseInfo"}},
+    "capabilities": {"type": "array", "items": {"$ref": "#/$defs/Capability"}},
+    "deployment_options": {"type": "array", "items": {"$ref": "#/$defs/DeploymentOption"}},
+    "evidence": {"type": "array", "items": {"$ref": "#/$defs/Evidence"}},
+    "criteria": {"type": "array", "items": {"$ref": "#/$defs/Criterion"}},
+    "evaluations": {"type": "array", "items": {"$ref": "#/$defs/Evaluation"}},
+    "criterion_scores": {"type": "array", "items": {"$ref": "#/$defs/CriterionScore"}},
+    "risks": {"type": "array", "items": {"$ref": "#/$defs/Risk"}},
+    "comparisons": {"type": "array", "items": {"$ref": "#/$defs/Comparison"}},
+    "decisions": {"type": "array", "items": {"$ref": "#/$defs/Decision"}},
+    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/Artifact"}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Id": {"type": "string", "minLength": 1},
+    "DateTime": {"type": "string", "format": "date-time"},
+    "Uri": {"type": "string", "format": "uri"},
+    "NullableUri": {"anyOf": [{"$ref": "#/$defs/Uri"}, {"type": "null"}]},
+    "FDTProject": {
+      "type": "object",
+      "required": ["id", "schema_version", "name", "description", "objective", "project_type", "lifecycle_stage", "platforms", "monetization", "constraints", "created_at", "updated_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "schema_version": {"const": "0.1"}, "name": {"type": "string", "minLength": 1},
+        "description": {"type": "string"}, "objective": {"type": "string", "minLength": 1}, "project_type": {"type": "string", "minLength": 1},
+        "lifecycle_stage": {"type": "string", "minLength": 1}, "estimated_users": {"type": ["integer", "null"], "minimum": 0},
+        "platforms": {"type": "array", "items": {"type": "string"}}, "monetization": {"type": "array", "items": {"type": "string"}},
+        "constraints": {"type": "array", "items": {"type": "string"}}, "created_at": {"$ref": "#/$defs/DateTime"}, "updated_at": {"$ref": "#/$defs/DateTime"}
+      }, "additionalProperties": false
+    },
+    "Requirement": {
+      "type": "object", "required": ["id", "project_id", "title", "description", "type", "priority", "status", "acceptance_criteria"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "project_id": {"$ref": "#/$defs/Id"}, "title": {"type": "string", "minLength": 1}, "description": {"type": "string"},
+        "type": {"enum": ["functional", "non_functional", "technical", "security", "operational", "compliance", "infrastructure"]},
+        "priority": {"enum": ["must", "should", "could", "wont"]}, "status": {"enum": ["proposed", "approved", "rejected", "deferred"]},
+        "acceptance_criteria": {"type": "array", "items": {"type": "string"}}
+      }, "additionalProperties": false
+    },
+    "DiscoveryRun": {
+      "type": "object", "required": ["id", "project_id", "objective", "status", "started_at", "completed_at", "sources", "parameters", "created_by"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "project_id": {"$ref": "#/$defs/Id"}, "objective": {"type": "string", "minLength": 1},
+        "status": {"enum": ["planned", "running", "completed", "failed", "cancelled"]}, "started_at": {"$ref": "#/$defs/DateTime"},
+        "completed_at": {"anyOf": [{"$ref": "#/$defs/DateTime"}, {"type": "null"}]}, "sources": {"type": "array", "items": {"type": "string"}},
+        "parameters": {"type": "object"}, "created_by": {"type": "object", "required": ["type", "identifier"], "properties": {"type": {"type": "string"}, "identifier": {"type": "string"}}, "additionalProperties": false}
+      }, "additionalProperties": false
+    },
+    "SearchQuery": {
+      "type": "object", "required": ["id", "discovery_run_id", "source", "query", "query_type", "filters", "executed_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "discovery_run_id": {"$ref": "#/$defs/Id"}, "source": {"type": "string"}, "query": {"type": "string", "minLength": 1},
+        "query_type": {"enum": ["repository", "code", "issue", "pull_request", "discussion", "user", "commit", "package", "wiki", "topic", "web"]},
+        "filters": {"type": "object"}, "executed_at": {"$ref": "#/$defs/DateTime"}
+      }, "additionalProperties": false
+    },
+    "SearchResult": {
+      "type": "object", "required": ["id", "discovery_run_id", "search_query_id", "external_id", "source", "title", "url", "description", "raw_metadata", "collected_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "discovery_run_id": {"$ref": "#/$defs/Id"}, "search_query_id": {"$ref": "#/$defs/Id"},
+        "external_id": {"type": ["string", "null"]}, "source": {"type": "string"}, "title": {"type": "string", "minLength": 1}, "url": {"$ref": "#/$defs/Uri"},
+        "description": {"type": ["string", "null"]}, "raw_metadata": {"type": "object"}, "collected_at": {"$ref": "#/$defs/DateTime"}
+      }, "additionalProperties": false
+    },
+    "Candidate": {
+      "type": "object", "required": ["id", "discovery_run_id", "search_result_id", "solution_id", "relevance_score", "status", "rejection_reason"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "discovery_run_id": {"$ref": "#/$defs/Id"}, "search_result_id": {"type": ["string", "null"]}, "solution_id": {"type": ["string", "null"]},
+        "relevance_score": {"type": "number", "minimum": 0, "maximum": 100}, "status": {"enum": ["discovered", "shortlisted", "rejected", "promoted"]},
+        "rejection_reason": {"type": ["string", "null"]}
+      }, "additionalProperties": false
+    },
+    "Solution": {
+      "type": "object", "required": ["id", "name", "slug", "description", "solution_type", "categories", "homepage_url", "documentation_url", "open_source", "lifecycle_status", "first_seen_at", "last_verified_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "name": {"type": "string", "minLength": 1}, "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}, "description": {"type": "string"},
+        "solution_type": {"enum": ["application", "platform", "service", "library", "framework", "infrastructure", "developer_tool", "protocol", "dataset", "other"]},
+        "categories": {"type": "array", "items": {"type": "string"}}, "homepage_url": {"$ref": "#/$defs/NullableUri"}, "documentation_url": {"$ref": "#/$defs/NullableUri"},
+        "open_source": {"type": ["boolean", "null"]}, "lifecycle_status": {"enum": ["active", "maintenance", "inactive", "archived", "unknown"]},
+        "first_seen_at": {"$ref": "#/$defs/DateTime"}, "last_verified_at": {"anyOf": [{"$ref": "#/$defs/DateTime"}, {"type": "null"}]}
+      }, "additionalProperties": false
+    },
+    "Repository": {
+      "type": "object", "required": ["id", "solution_id", "provider", "owner", "name", "url", "default_branch", "primary_language", "archived", "fork", "created_at_source", "updated_at_source", "pushed_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "solution_id": {"$ref": "#/$defs/Id"}, "provider": {"enum": ["github", "gitlab", "codeberg", "self_hosted", "other"]},
+        "owner": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1}, "url": {"$ref": "#/$defs/Uri"}, "default_branch": {"type": ["string", "null"]},
+        "primary_language": {"type": ["string", "null"]}, "archived": {"type": ["boolean", "null"]}, "fork": {"type": ["boolean", "null"]},
+        "created_at_source": {"anyOf": [{"$ref": "#/$defs/DateTime"}, {"type": "null"}]}, "updated_at_source": {"anyOf": [{"$ref": "#/$defs/DateTime"}, {"type": "null"}]},
+        "pushed_at": {"anyOf": [{"$ref": "#/$defs/DateTime"}, {"type": "null"}]}
+      }, "additionalProperties": false
+    },
+    "MetricSnapshot": {
+      "type": "object", "required": ["id", "repository_id", "collected_at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "repository_id": {"$ref": "#/$defs/Id"}, "collected_at": {"$ref": "#/$defs/DateTime"},
+        "stars": {"type": ["integer", "null"], "minimum": 0}, "forks": {"type": ["integer", "null"], "minimum": 0}, "watchers": {"type": ["integer", "null"], "minimum": 0},
+        "open_issues": {"type": ["integer", "null"], "minimum": 0}, "contributors": {"type": ["integer", "null"], "minimum": 0}, "commits_30d": {"type": ["integer", "null"], "minimum": 0},
+        "commits_90d": {"type": ["integer", "null"], "minimum": 0}, "releases_total": {"type": ["integer", "null"], "minimum": 0},
+        "latest_release_at": {"anyOf": [{"$ref": "#/$defs/DateTime"}, {"type": "null"}]}, "days_since_last_commit": {"type": ["integer", "null"], "minimum": 0}
+      }, "additionalProperties": false
+    },
+    "LicenseInfo": {
+      "type": "object", "required": ["id", "solution_id", "identifier", "name", "osi_approved", "copyleft", "commercial_use", "modification", "redistribution", "white_label_risk"],
+      "properties": {
+        "id": {"$ref": "#/$defs/Id"}, "solution_id": {"$ref": "#/$defs/Id"}, "identifier": {"type": "string"}, "name": {"type": "string"}, "osi_approved": {"type": ["boolean", "null"]},
+        "copyleft": {"enum": ["none", "weak", "strong", "network", "unknown"]}, "commercial_use": {"enum": ["allowed", "restricted", "prohibited", "unknown"]},
+        "modification": {"enum": ["allowed", "restricted", "prohibited", "unknown"]}, "redistribution": {"enum": ["allowed", "restricted", "prohibited", "unknown"]},
+        "white_label_risk": {"enum": ["low", "medium", "high", "unknown"]}
+      }, "additionalProperties": false
+    },
+    "Capability": {
+      "type": "object", "required": ["id", "solution_id", "key", "name", "description", "support_level"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "solution_id": {"$ref": "#/$defs/Id"}, "key": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1}, "description": {"type": ["string", "null"]}, "support_level": {"enum": ["native", "plugin", "integration", "partial", "planned", "unsupported", "unknown"]}},
+      "additionalProperties": false
+    },
+    "DeploymentOption": {
+      "type": "object", "required": ["id", "solution_id", "deployment_type", "supported", "official", "reference_url"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "solution_id": {"$ref": "#/$defs/Id"}, "deployment_type": {"enum": ["binary", "package", "docker", "docker_compose", "kubernetes", "helm", "source", "mobile_apk", "cloud", "other"]}, "supported": {"type": ["boolean", "null"]}, "official": {"type": ["boolean", "null"]}, "reference_url": {"$ref": "#/$defs/NullableUri"}},
+      "additionalProperties": false
+    },
+    "Evidence": {
+      "type": "object", "required": ["id", "entity_type", "entity_id", "field", "source_type", "source_url", "collected_at", "value", "provenance", "confidence", "excerpt"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "entity_type": {"type": "string", "minLength": 1}, "entity_id": {"$ref": "#/$defs/Id"}, "field": {"type": ["string", "null"]}, "source_type": {"enum": ["repository", "documentation", "website", "api", "issue", "pull_request", "discussion", "release", "community", "user", "generated"]}, "source_url": {"$ref": "#/$defs/NullableUri"}, "collected_at": {"$ref": "#/$defs/DateTime"}, "value": {}, "provenance": {"enum": ["observed", "derived", "inferred", "user_provided"]}, "confidence": {"enum": ["high", "medium", "low"]}, "excerpt": {"type": ["string", "null"]}},
+      "additionalProperties": false
+    },
+    "Criterion": {
+      "type": "object", "required": ["id", "key", "name", "description", "category", "weight", "scoring_method"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "key": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1}, "description": {"type": "string"}, "category": {"type": "string"}, "weight": {"type": "number", "minimum": 0, "maximum": 1}, "scoring_method": {"enum": ["boolean", "numeric", "scale", "formula", "manual"]}},
+      "additionalProperties": false
+    },
+    "Evaluation": {
+      "type": "object", "required": ["id", "project_id", "solution_id", "evaluation_version", "evaluated_at", "overall_score", "classification", "notes"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "project_id": {"$ref": "#/$defs/Id"}, "solution_id": {"$ref": "#/$defs/Id"}, "evaluation_version": {"type": "string"}, "evaluated_at": {"$ref": "#/$defs/DateTime"}, "overall_score": {"type": "number", "minimum": 0, "maximum": 100}, "classification": {"enum": ["recommended", "conditional", "experimental", "rejected", "insufficient_data"]}, "notes": {"type": ["string", "null"]}},
+      "additionalProperties": false
+    },
+    "CriterionScore": {
+      "type": "object", "required": ["id", "evaluation_id", "criterion_id", "raw_score", "normalized_score", "weighted_score", "confidence", "rationale"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "evaluation_id": {"$ref": "#/$defs/Id"}, "criterion_id": {"$ref": "#/$defs/Id"}, "raw_score": {"type": ["number", "null"]}, "normalized_score": {"type": ["number", "null"]}, "weighted_score": {"type": ["number", "null"]}, "confidence": {"enum": ["high", "medium", "low"]}, "rationale": {"type": ["string", "null"]}},
+      "additionalProperties": false
+    },
+    "Risk": {
+      "type": "object", "required": ["id", "project_id", "solution_id", "category", "description", "probability", "impact", "severity", "mitigation", "status"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "project_id": {"$ref": "#/$defs/Id"}, "solution_id": {"type": ["string", "null"]}, "category": {"enum": ["technical", "security", "licensing", "operational", "dependency", "maturity", "vendor", "community", "compliance", "cost"]}, "description": {"type": "string", "minLength": 1}, "probability": {"enum": ["low", "medium", "high"]}, "impact": {"enum": ["low", "medium", "high"]}, "severity": {"enum": ["low", "medium", "high", "critical"]}, "mitigation": {"type": ["string", "null"]}, "status": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    },
+    "RankingEntry": {
+      "type": "object", "required": ["solution_id", "position", "score"],
+      "properties": {"solution_id": {"$ref": "#/$defs/Id"}, "position": {"type": "integer", "minimum": 1}, "score": {"type": "number", "minimum": 0, "maximum": 100}}, "additionalProperties": false
+    },
+    "Comparison": {
+      "type": "object", "required": ["id", "project_id", "title", "solution_ids", "criteria_ids", "ranking", "created_at"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "project_id": {"$ref": "#/$defs/Id"}, "title": {"type": "string", "minLength": 1}, "solution_ids": {"type": "array", "items": {"$ref": "#/$defs/Id"}, "minItems": 2, "uniqueItems": true}, "criteria_ids": {"type": "array", "items": {"$ref": "#/$defs/Id"}, "uniqueItems": true}, "ranking": {"type": "array", "items": {"$ref": "#/$defs/RankingEntry"}}, "created_at": {"$ref": "#/$defs/DateTime"}}, "additionalProperties": false
+    },
+    "Decision": {
+      "type": "object", "required": ["id", "project_id", "title", "context", "status", "selected_solution_ids", "rejected_solution_ids", "rationale", "approved_at"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "project_id": {"$ref": "#/$defs/Id"}, "title": {"type": "string", "minLength": 1}, "context": {"type": "string"}, "status": {"enum": ["proposed", "accepted", "rejected", "superseded"]}, "selected_solution_ids": {"type": "array", "items": {"$ref": "#/$defs/Id"}, "uniqueItems": true}, "rejected_solution_ids": {"type": "array", "items": {"$ref": "#/$defs/Id"}, "uniqueItems": true}, "rationale": {"type": "string"}, "approved_at": {"anyOf": [{"$ref": "#/$defs/DateTime"}, {"type": "null"}]}}, "additionalProperties": false
+    },
+    "Artifact": {
+      "type": "object", "required": ["id", "project_id", "discovery_run_id", "artifact_type", "version", "uri", "content_hash", "generated_at"],
+      "properties": {"id": {"$ref": "#/$defs/Id"}, "project_id": {"$ref": "#/$defs/Id"}, "discovery_run_id": {"type": ["string", "null"]}, "artifact_type": {"enum": ["technology_inventory", "logical_architecture", "physical_architecture", "dependency_matrix", "open_source_catalog", "devops_plan", "observability_plan", "security_plan", "operations_plan", "roadmap", "comparison_report", "decision_record", "other"]}, "version": {"type": "string", "minLength": 1}, "uri": {"type": ["string", "null"]}, "content_hash": {"type": ["string", "null"]}, "generated_at": {"$ref": "#/$defs/DateTime"}}, "additionalProperties": false
+    }
+  }
+}
